@@ -1,0 +1,67 @@
+# === macOS specific ===
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon?
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# === STM32CubeIDE specific ===
+
+# Build output
+/Debug/
+/Release/
+/build/
+/out/
+/output/
+/Core/Inc/*.d
+/Core/Src/*.d
+*.o
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+*.log
+
+software/app/Debug
+software/bootloader/Debug
+# Eclipse project files (optional if you don't want to track them)
+.metadata/
+*.launch
+*.orig
+*.swp
+
+# CMake cache (if using CMake)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Backup / temporary files
+*~
+*.bak
+*.tmp
+
+# === Python Virtual Environment ===
+venv/
+.venv/
+ENV/
+env/
