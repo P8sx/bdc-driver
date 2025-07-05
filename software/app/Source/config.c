@@ -12,7 +12,6 @@
 #define EXIT_CRITICAL()     __enable_irq()
 
 driverConfig_t driverConfig = {
-		.motorControlMode = 0,
 		.pidKp = 5,
 		.pidKi = 4,
 		.pidKd = 0.04,
@@ -27,12 +26,6 @@ const driverConfig_t* cfg = &driverConfig;
 void CONFIG_SetMotorInvertControl(uint8_t enabled) {
     ENTER_CRITICAL();
     driverConfig.motorInvertControl = enabled;
-    EXIT_CRITICAL();
-}
-
-void CONFIG_SetMotorControlMode(uint8_t mode) {
-    ENTER_CRITICAL();
-    driverConfig.motorControlMode = mode;
     EXIT_CRITICAL();
 }
 
@@ -72,19 +65,19 @@ void CONFIG_SetBridgeOverCurrentLimitTime(uint16_t timeMs) {
     EXIT_CRITICAL();
 }
 
-void CONFIG_SetPidKp(float kp) {
+void CONFIG_SetPIDKp(float kp) {
     ENTER_CRITICAL();
     driverConfig.pidKp = kp;
     EXIT_CRITICAL();
 }
 
-void CONFIG_SetPidKd(float kd) {
+void CONFIG_SetPIDKd(float kd) {
     ENTER_CRITICAL();
     driverConfig.pidKd = kd;
     EXIT_CRITICAL();
 }
 
-void CONFIG_SetPidKi(float ki) {
+void CONFIG_SetPIDKi(float ki) {
     ENTER_CRITICAL();
     driverConfig.pidKi = ki;
     EXIT_CRITICAL();

@@ -48,7 +48,6 @@
 
 typedef struct {
 	uint8_t  motorInvertControl;
-	uint8_t  motorControlMode;				// 0 - dumb mode(SPEED/DIR controlled by COM) , 1 - SERVO mode, 2 - VELOCITY mode
 
 	float	 motorTempHys;					// C - over temperature hysteresis
 	float 	 motorOverTempLimit;			// C - over temperature limit
@@ -74,16 +73,15 @@ extern const driverConfig_t* cfg;
 
 
 void CONFIG_SetMotorInvertControl(uint8_t enabled);
-void CONFIG_SetMotorControlMode(uint8_t mode);
 void CONFIG_SetMotorTempHys(float hys);
 void CONFIG_SetMotorOverTempLimit(float limit);
 void CONFIG_SetMotorNTCEnabled(uint8_t enabled);
 void CONFIG_SetBridgeCurrentLimit(float limit);
 void CONFIG_SetBridgeOverCurrentLimit(float limit);
 void CONFIG_SetBridgeOverCurrentLimitTime(uint16_t timeMs);
-void CONFIG_SetPidKp(float kp);
-void CONFIG_SetPidKd(float kd);
-void CONFIG_SetPidKi(float ki);
+void CONFIG_SetPIDKp(float kp);
+void CONFIG_SetPIDKd(float kd);
+void CONFIG_SetPIDKi(float ki);
 void CONFIG_SetPositionTolerance(uint16_t tolerance);
 void CONFIG_SetPositionStopOnTarget(uint8_t stop);
 void CONFIG_SetEndstopCWEnabled(uint8_t enabled);

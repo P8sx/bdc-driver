@@ -93,95 +93,80 @@ void COM_MainLoop(void){
 tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t value)
 {
   static uint16_t flashPageBytesCount = 0;
-  tTbxMbServerResult result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
 
-
-  if (HOLDING_REG_FLASH_PAGE_NUMBER == addr)
+  tTbxMbServerResult result = TBX_MB_SERVER_OK;
+  switch(addr)
   {
-	  flashPageNumber = value;
-	  result = TBX_MB_SERVER_OK;
+	  case HOLDING_REG_FLASH_PAGE_NUMBER:
+		  flashPageNumber = value;
+	  break;
+	  case HOLDING_REG_FLASH_PAGE_START_ADDR ... HOLDING_REG_FLASH_PAGE_START_ADDR + HOLDING_REG_FLASH_PAGE_SIZE:
+	  	  uint16_t index = (addr - HOLDING_REG_FLASH_PAGE_START_ADDR) * 2;
+	  	  uint8_tU data = {.u16 = value};
+
+	  	  flashPage[index + 1]  = data.d[0];
+	  	  flashPage[index] 		= data.d[1];
+
+	  	  flashPageBytesCount += 2;
+	  	  if(flashPageBytesCount == sizeof(flashPage))
+	  	  {
+			  flashPageBytesCount = 0;
+			  flashPageCRC.d = HAL_CRC_Calculate(&hcrc, (uint32_t *)flashPage, sizeof(flashPage));
+			  OTW_FLASH_WritePageToRAM(flashPage, flashPageNumber);
+	  	  }
+	  break;
+	  default:
+		  result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
   }
-  else if (addr >= HOLDING_REG_FLASH_PAGE_START_ADDR && addr < HOLDING_REG_FLASH_PAGE_START_ADDR + HOLDING_REG_FLASH_PAGE_SIZE)
+  return result;
+}
+
+
+tTbxMbServerResult AppReadReg(tTbxMbServer channel, uint16_t addr, uint16_t *value)
+{
+  tTbxMbServerResult result = TBX_MB_SERVER_OK;
+  switch(addr)
   {
-	  uint16_t index = (addr - HOLDING_REG_FLASH_PAGE_START_ADDR) * 2;
-	  uint8_tU data = {.u16 = value};
-
-	  flashPage[index + 1]  = data.d[0];
-	  flashPage[index] 		= data.d[1];
-
-	  flashPageBytesCount += 2;
-	  result = TBX_MB_SERVER_OK;
-  }
-
-
-
-  if((HOLDING_REG_FLASH_PAGE_START_ADDR + HOLDING_REG_FLASH_PAGE_SIZE) == addr + 1 && flashPageBytesCount == sizeof(flashPage))
-  {
-	  flashPageBytesCount = 0;
-	  flashPageCRC.d = HAL_CRC_Calculate(&hcrc, (uint32_t *)flashPage, sizeof(flashPage));
-	  OTW_FLASH_WritePageToRAM(flashPage, flashPageNumber);
+	  case INPUT_REG_BUILD_DATE ... INPUT_REG_BUILD_DATE + INPUT_REG_BUILD_DATE_SIZE:
+		  const uint8_t buildDatetime[INPUT_REG_VERSION_SIZE] = BUILD_DATETIME;
+		  *value = buildDatetime[addr - INPUT_REG_BUILD_DATE];
+	  break;
+	  case INPUT_REG_VERSION ... INPUT_REG_VERSION + INPUT_REG_VERSION_SIZE:
+	  	  const uint8_t buildVersion[INPUT_REG_VERSION_SIZE] = BUILD_VERSION;
+	  	  *value = buildVersion[addr - INPUT_REG_VERSION];
+	  break;
+	  case INPUT_REG_FLASH_PAGE_CRC32:
+		  *value = flashPageCRC.u16[1];
+	  break;
+	  case INPUT_REG_FLASH_PAGE_CRC32 + 1:
+		  *value = flashPageCRC.u16[0];
+	  break;
+	  default:
+		  result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
   }
   return result;
 }
 
 
 
-tTbxMbServerResult AppReadReg(tTbxMbServer channel, uint16_t addr, uint16_t *value)
-{
-  tTbxMbServerResult result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
-
-  if(addr >= INPUT_REG_BUILD_DATE && addr < INPUT_REG_BUILD_DATE + INPUT_REG_BUILD_DATE_SIZE)
-  {
-	  const uint8_t buildDatetime[INPUT_REG_VERSION_SIZE] = BUILD_DATETIME;
-	  *value = buildDatetime[addr - INPUT_REG_BUILD_DATE];
-	  result = TBX_MB_SERVER_OK;
-  }
-
-  else if(addr >= INPUT_REG_VERSION && addr < INPUT_REG_VERSION + INPUT_REG_VERSION_SIZE)
-  {
-	  const uint8_t buildVersion[INPUT_REG_VERSION_SIZE] = BUILD_VERSION;
-	  *value = buildVersion[addr - INPUT_REG_VERSION];
-	  result = TBX_MB_SERVER_OK;
-  }
-
-  else if (INPUT_REG_FLASH_PAGE_CRC32 == addr)
-  {
-	  *value = flashPageCRC.u16[1];
-	  result = TBX_MB_SERVER_OK;
-  }
-  else if (INPUT_REG_FLASH_PAGE_CRC32 + 1 == addr)
-  {
-	  *value = flashPageCRC.u16[0];
-	  result = TBX_MB_SERVER_OK;
-	  flashPageCRC.d = 0;
-
-  }
-	return result;
-}
-
-
-
-
-
 tTbxMbServerResult AppWriteCoil(tTbxMbServer channel, uint16_t addr, uint8_t value)
 {
-  tTbxMbServerResult result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
-  if(COIL_REG_JUMP == addr)
+  tTbxMbServerResult result = TBX_MB_SERVER_OK;
+  switch(addr)
   {
-	  if(value == TBX_ON)
-	  {
-		  UTILS_UpdateBootFlag(BOOTFLAG_APP);
-		  UTILS_DelayedReset();
-		  return TBX_MB_SERVER_OK;
-	  }
+	  case COIL_REG_JUMP:
+		  if(value == TBX_ON)
+		  {
+			  UTILS_UpdateBootFlag(BOOTFLAG_APP);
+			  UTILS_DelayedReset();
+		  }
+	  break;
+	  case COIL_REG_OTW_PERFORM_UPDATE:
+		  flashPerformUpdate = true;
+	  break;
+	  default:
+		  result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
   }
-
-  if (COIL_REG_OTW_PERFORM_UPDATE == addr)
-  {
-	 flashPerformUpdate = true;
-     result = TBX_MB_SERVER_OK;
-  }
-
   return result;
 }
 
@@ -190,11 +175,14 @@ tTbxMbServerResult AppWriteCoil(tTbxMbServer channel, uint16_t addr, uint8_t val
 
 tTbxMbServerResult AppReadCoil(tTbxMbServer channel, uint16_t addr, uint8_t* value)
 {
-  tTbxMbServerResult result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
-  if(COIL_REG_JUMP == addr)
+  tTbxMbServerResult result = TBX_MB_SERVER_OK;
+  switch(addr)
   {
-	  *value = TBX_OFF;
-	  result = TBX_MB_SERVER_OK;
+	  case COIL_REG_JUMP:
+		  *value = TBX_OFF;
+	  break;
+	  default:
+		  result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
   }
   return result;
 }

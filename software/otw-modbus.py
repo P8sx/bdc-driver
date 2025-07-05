@@ -17,15 +17,15 @@ instrument.mode = minimalmodbus.MODE_RTU
 instrument.clear_buffers_before_each_transaction = True
 
 
-BOOT_MODE_COIL = 1
+BOOT_MODE_COIL = 1000
 
 FLASH_PAGE_NUMBER_ADDRESS = 40000
 FLASH_PAGE_START_REGISTER = 41000
 
 FLASH_PAGE_CRC_REGISTER = 30000
 
-PERFORM_UPDATE_COIL = 1000
-VALIDATE_UPDATE_COIL = 1001
+PERFORM_UPDATE_COIL = 1001
+VALIDATE_UPDATE_COIL = 1002
 BUILD_DATE_REGISTER = 39000
 BUILD_TIME_REGISTER = 39050
 
@@ -74,10 +74,23 @@ def bootloader_info():
     print("======================================================")
 
 
+def uint16_to_float(high, low):
+    combined = (high << 16) | low
+    return struct.unpack('>f', struct.pack('>I', combined))[0]
 
+def uint16_to_int64(u0, u1, u2, u3):
+    combined = (u0 << 48) | (u1 << 32) | (u2 << 16) | u3
+    if combined >= (1 << 63):
+        combined -= (1 << 64)
+    return combined
 
+test = instrument.read_registers(30004, 2, functioncode=3)
+print(uint16_to_float(test[0], test[1]))
 
+test2 = instrument.read_registers(30008, 4, functioncode=3)
+print(uint16_to_int64(test2[0], test2[1], test2[2], test2[3]))
 
+exit(1)
 
 if(instrument.read_bit(BOOT_MODE_COIL, functioncode=1) == 1):
     app_info()

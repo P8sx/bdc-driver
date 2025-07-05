@@ -22,10 +22,14 @@ extern UART_HandleTypeDef huart3;
 PID_TypeDef mPID;
 
 MotorState currentState = STATE_STOP;
+MotorMode currentMode = MODE_DIRECTION;
 
 double pidInput, pidOutput, pidTarget;
+double targetPosition, targetSpeed;
+uint16_t dumbPWMA, dumbPWMB;
 
-#define IS_MODE(x) (cfg->motorControlMode == (x))
+#define IS_MODE(x) (currentMode == (x))
+#define SET_MODE(x) (currentMode = (x))
 #define IS_STATE(x) (currentState == (x))
 #define SET_STATE(x) (currentState = (x))
 
@@ -34,33 +38,56 @@ void MOTOR_SetPWM(uint16_t pwmA, uint16_t pwmB);
 void MOTOR_Stop();
 
 
-void MOTOR_PIDUpdateTunings()
+void MOTOR_SetMode(uint8_t mode)
 {
-	PID_SetTunings(&mPID, cfg->pidKp, cfg->pidKi, cfg->pidKd);
+	SET_MODE(mode);
 }
+
 
 void MOTOR_SetPosition(int64_t pos)
 {
 	if(IS_STATE(STATE_STOP_POSITION_REACHED))
 		SET_STATE(STATE_STOP);
 
-	pidTarget = pos;
+	SET_MODE(MODE_POSITION);
+	targetSpeed = pos;
+	pidTarget = targetSpeed;
 }
+
+
 
 void MOTOR_SetVelocity(int16_t RPS)
 {
-	pidTarget = RPS;
+	SET_MODE(MODE_VELOCITY);
+	targetSpeed = RPS;
+	pidTarget = targetSpeed;
 }
+
+
 
 void MOTOR_SetDirection(uint16_t pwmA, uint16_t pwmB)
 {
-	if(pwmA == 0 && pwmB == 0){
-		MOTOR_Stop();
-		SET_STATE(STATE_STOP);
-		return;
-	}
-	MOTOR_SetPWM(pwmA, pwmB);
+	SET_MODE(MODE_DIRECTION);
+	dumbPWMA = pwmA;
+	dumbPWMB = pwmB;
 }
+
+
+
+
+void MOTOR_EStop(uint8_t state)
+{
+	if(state)
+		SET_STATE(STATE_ESTOP);
+	else
+		SET_STATE(STATE_STOP);
+}
+
+void MOTOR_PIDUpdateTunings()
+{
+	PID_SetTunings(&mPID, cfg->pidKp, cfg->pidKi, cfg->pidKd);
+}
+
 
 void MOTOR_EndstopISR(uint16_t GPIO_Pin)
 {
@@ -78,6 +105,8 @@ void MOTOR_EndstopISR(uint16_t GPIO_Pin)
 	}
 }
 
+
+
 void MOTOR_Sleep(uint8_t state)
 {
 	if(state)
@@ -85,6 +114,8 @@ void MOTOR_Sleep(uint8_t state)
 	else
 	  HAL_GPIO_WritePin(M_SLEEPn_GPIO_Port, M_SLEEPn_Pin, GPIO_PIN_SET);
 }
+
+
 
 void MOTOR_Init()
 {
@@ -109,7 +140,6 @@ void MOTOR_MainLoop()
 	/* ESTOP Handling */
 	if( IS_STATE(STATE_ESTOP) )
 	{
-		SET_STATE(STATE_ESTOP);
 	    MOTOR_Stop();
 		return; // Do not execute any action if emergency stop has been set
 	}
@@ -196,9 +226,14 @@ void MOTOR_MainLoop()
 			MOTOR_SetPWM(pwmA, pwmB);
 
 		}
-    	else if(IS_MODE(MODE_DUMB))
+    	else if(IS_MODE(MODE_DIRECTION))
 		{
-    		// Main loop not needed, control set in function call
+    		if(dumbPWMA == 0 && dumbPWMB == 0){
+    			MOTOR_Stop();
+    			SET_STATE(STATE_STOP);
+    			return;
+    		}
+    		MOTOR_SetPWM(dumbPWMA, dumbPWMB);
 		}
 
 

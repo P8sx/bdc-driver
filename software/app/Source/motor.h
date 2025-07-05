@@ -12,9 +12,10 @@
 #include "config.h"
 
 typedef enum {
-	MODE_DUMB = 0,
+	MODE_DIRECTION = 0,
     MODE_POSITION = 1,    // Position control mode
-    MODE_VELOCITY = 2     // Velocity control mode
+    MODE_VELOCITY = 2,     // Velocity control mode
+	MODE_OUT_OF_RANGE = 3
 } MotorMode;
 
 typedef enum {
@@ -34,10 +35,11 @@ void MOTOR_EndstopISR(uint16_t GPIO_Pin);
 void MOTOR_Init();
 void MOTOR_MainLoop();
 
+void MOTOR_SetMode(uint8_t mode);
 void MOTOR_SetPosition(int64_t pos);
 void MOTOR_SetVelocity(int16_t RPS);
 void MOTOR_SetDirection(uint16_t pwmA, uint16_t pwmB);
 void MOTOR_PIDUpdateTunings();
-
+void MOTOR_EStop(uint8_t state);
 
 #endif /* MOTOR_H_ */

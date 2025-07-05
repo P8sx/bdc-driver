@@ -40,9 +40,10 @@ Temporary Items
 *.map
 *.list
 *.log
-
 software/app/Debug
 software/bootloader/Debug
+
+
 # Eclipse project files (optional if you don't want to track them)
 .metadata/
 *.launch
