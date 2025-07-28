@@ -6,9 +6,9 @@
 </p>
 
 <p align="center">
-  <img alt="Light" src="img/3d.png" height="400px" width="400px">
+  <img alt="Light" src="img/3d.png" height="400px" width="45%">
 &nbsp; &nbsp; &nbsp; &nbsp;
-  <img alt="Dark" src="img/pic.png" height="400px" width="400px">
+  <img alt="Dark" src="img/pic.png" height="400px" width="45%">
 </p>
 
 ## Overview
