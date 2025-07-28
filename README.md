@@ -6,9 +6,9 @@
 </p>
 
 <p align="center">
-  <img alt="Light" src="img/3d.png" height="400px" width="45%">
+  <img alt="Light" src="img/top.png" height="400px" width="45%">
 &nbsp; &nbsp; &nbsp; &nbsp;
-  <img alt="Dark" src="img/pic.png" height="400px" width="45%">
+  <img alt="Dark" src="img/bottom.png" height="400px" width="45%">
 </p>
 
 ## Overview
@@ -16,7 +16,7 @@
 Compact brushed DC motor driver with RS485 (Modbus) / CAN control, based on the **STM32G0B1CBT6** MCU.
 
 ### Key Features
-
+- Compact form factor 50x50mm
 - **A4955** as the main gate driver (up to 50V)  
 - **LMR51635** step-down converter for 5V rail  
 - **CAN/RS485 transceiver** using a shared footprint (selected via jumpers)  
