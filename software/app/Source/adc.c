@@ -63,8 +63,8 @@ void ADC_MainLoop()
 {
 	uint32_t now = HAL_GetTick();
 	static uint32_t lastConversionTime = 0;
-	static uint32_t lastConversionTime2 = 0;
-    if ((now - lastConversionTime) >= 100 )
+
+    if ((now - lastConversionTime) >= 10 )
     {
     	bridgeTemp = ADC_ToCelsius(adcResult[ADC_NTC_BRIDGE]);
     	motorTemp = ADC_ToCelsius(adcResult[ADC_NTC_MOTOR]);
@@ -73,12 +73,11 @@ void ADC_MainLoop()
 
         lastConversionTime = now;
     }
-    if((now - lastConversionTime2) >= 1000 )
-    {
-        HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DAC_ToRaw(cfg->bridgeCurrentLimit));
-        lastConversionTime2 = now;
-    }
 
+}
+void ADC_UpdateBridgeCurrentLimit()
+{
+	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DAC_ToRaw(cfg->bridgeCurrentLimit));
 }
 
 float ADC_GetMotorCurrent()

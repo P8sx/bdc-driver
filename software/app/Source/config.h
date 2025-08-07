@@ -35,7 +35,16 @@
 #define MOTOR_BRIDGE_TEMP_LIMIT		70.0	// C
 #define MOTOR_BRIDGE_TEMP_HYS		10.0	// C
 
+
+/* ------------------------------------ ENC CONFIG  -------------------------------------*/
+#define ENCODER_MIDPOINT 			0x8000 	// Midpoint for 16bit Timer
+#define ENCODER_INTERRUPT_FREQ 		100 	// Hz
+#define ENCODER_MODE 				2 		// 2 - if only counting T1 or T2, 4 - if T1 and T2
+#define ENCODER_PR					1000		// Pulses per revolution
+
+
 /* -------------------------------------- CONFIG  ---------------------------------------*/
+#define EEPROM_PAGE_SIZE 						8
 #define EEPROM_I2C_ADDRESS						0x50<<1
 /* EEPROM Data addresses */
 #define EEPROM_MODBUS_ADDRESS					0x00
@@ -44,6 +53,7 @@
 #define EEPROM_MODBUS_STOP_BITS					0x03
 #define EEPROM_MODBUS_PARITY					0x04
 
+#define EEPROM_CONFIG_ADDRESS					0x10
 
 
 typedef struct {
@@ -54,8 +64,8 @@ typedef struct {
 	uint8_t  motorNTCEnabled;				// 0 - disabled, 1 - enabled
 
 	float	 bridgeCurrentLimit;			// A - Current limit set by DAC on ILIM pin
-	float 	 bridgeOverCurrentLimit;		// A - OVERCURRENT limit monitored by MCU
-	uint16_t bridgeOverCurrentLimitTime;	// ms - OVERCURRENT timeout
+	float 	 bridgeSWCurrentLimit;		    // A - OVERCURRENT limit monitored by MCU
+	uint16_t bridgeSWCurrentLimitTime;	    // ms - OVERCURRENT timeout
 
 	float 	 pidKp;
 	float 	 pidKd;
@@ -71,14 +81,16 @@ typedef struct {
 
 extern const driverConfig_t* cfg;
 
+void CONFIG_Save();
+void CONFIG_Load();
 
 void CONFIG_SetMotorInvertControl(uint8_t enabled);
 void CONFIG_SetMotorTempHys(float hys);
 void CONFIG_SetMotorOverTempLimit(float limit);
 void CONFIG_SetMotorNTCEnabled(uint8_t enabled);
 void CONFIG_SetBridgeCurrentLimit(float limit);
-void CONFIG_SetBridgeOverCurrentLimit(float limit);
-void CONFIG_SetBridgeOverCurrentLimitTime(uint16_t timeMs);
+void CONFIG_SetBridgeSWCurrentLimit(float limit);
+void CONFIG_SetBridgeSWCurrentLimitTime(uint16_t timeMs);
 void CONFIG_SetPIDKp(float kp);
 void CONFIG_SetPIDKd(float kd);
 void CONFIG_SetPIDKi(float ki);

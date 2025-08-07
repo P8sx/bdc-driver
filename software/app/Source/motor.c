@@ -134,8 +134,6 @@ void MOTOR_Init()
 void MOTOR_MainLoop()
 {
 	uint32_t now = HAL_GetTick();
-	static uint32_t lastConversionTime = 0;
-
 
 	/* ESTOP Handling */
 	if( IS_STATE(STATE_ESTOP) )
@@ -181,6 +179,7 @@ void MOTOR_MainLoop()
 		}
 	}
 
+	static uint32_t lastConversionTime = 0;
 	// Control loop
     if ((now - lastConversionTime) >= MOTOR_MAIN_LOOP_PERIOD)
     {

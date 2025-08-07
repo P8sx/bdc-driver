@@ -77,15 +77,6 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
   tTbxMbServerResult result = TBX_MB_SERVER_OK;
   switch (addr)
   {
-    case HOLDING_REG_MOTOR_CONTROL_MODE:
-      if(value >= MODE_OUT_OF_RANGE)
-      {
-        result = TBX_MB_SERVER_ERR_DEVICE_FAILURE;
-        break;
-      }
-      MOTOR_SetMode(value);
-      break;
-
     case HOLDING_REG_SET_MOTOR_RPS:
       MOTOR_SetVelocity(value);
       break;
@@ -131,11 +122,11 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
       break;
     case HOLDING_REG_BRIDGE_OVERCURRENT_LIMIT + 1:
       bridgeOverCurrentLimit.u16[0] = value;
-      CONFIG_SetBridgeOverCurrentLimit(bridgeOverCurrentLimit.d);
+      CONFIG_SetBridgeSWCurrentLimit(bridgeOverCurrentLimit.d);
       break;
     
     case HOLDING_REG_BRIDGE_OVERCURRENT_TIME:
-      CONFIG_SetBridgeOverCurrentLimitTime(value);
+      CONFIG_SetBridgeSWCurrentLimitTime(value);
       break;
     
     case HOLDING_REG_PID_KP:
@@ -144,7 +135,6 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
     case HOLDING_REG_PID_KP + 1:
       kp.u16[0] = value;
       CONFIG_SetPIDKp(kp.d);
-      MOTOR_PIDUpdateTunings();
       break;
 
     case HOLDING_REG_PID_KD:
@@ -153,7 +143,6 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
     case HOLDING_REG_PID_KD + 1:
       kd.u16[0] = value;
       CONFIG_SetPIDKd(kd.d);
-      MOTOR_PIDUpdateTunings();
       break;
 
     case HOLDING_REG_PID_KI:
@@ -162,7 +151,6 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
     case HOLDING_REG_PID_KI + 1:
       ki.u16[0] = value;
       CONFIG_SetPIDKi(ki.d);
-      MOTOR_PIDUpdateTunings();
       break;
     
     case HOLDING_REG_POSITION_TOLERANCE:
@@ -310,7 +298,9 @@ tTbxMbServerResult AppReadCoil(tTbxMbServer channel, uint16_t addr, uint8_t *val
   case COIL_REG_JUMP:
     *value = TBX_ON;
     break;
-
+  case INPUT_CONTACTS_MOTOR_OCLN:
+	  *value = HAL_GPIO_ReadPin(M_OCLn_GPIO_Port, M_OCLn_Pin);
+    break;
   default:
     result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
   }

@@ -134,6 +134,9 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+//  CONFIG_Save();
+
+  CONFIG_Load();
 
   COM_Init();
 
@@ -149,10 +152,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   BEEP_IT(50, 1);
 
-
-   //HAL_I2C_Mem_Write(&hi2c2, 0x50<<1, 0x10, I2C_MEMADD_SIZE_8BIT, test, sizeof(test),HAL_MAX_DELAY);
-
-//   HAL_I2C_Mem_Read(&hi2c2, 0x50<<1, 0x10, I2C_MEMADD_SIZE_8BIT, result, sizeof(result),HAL_MAX_DELAY);
 
 
 
@@ -553,11 +552,11 @@ static void MX_TIM3_Init(void)
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
-  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_FALLING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
   sConfig.IC1Filter = 0;
-  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_FALLING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
   sConfig.IC2Filter = 0;

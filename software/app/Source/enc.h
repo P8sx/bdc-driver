@@ -12,11 +12,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-#define ENCODER_MIDPOINT 			0x8000 	// Midpoint for 16bit Timer
-#define ENCODER_INTERRUPT_FREQ 		100 	// Hz
-#define ENCODER_MODE 				2 		// 2 - if only counting T1 or T2, 4 - if T1 and T2
-#define ENCODER_PR					360		// Pulses per revolution
-
 void ENCODER_Init();
 void ENCODER_ISR();
 void ENCODER_MainLoop();

@@ -25,5 +25,6 @@ float ADC_GetMotorTemp();
 float ADC_GetMotorCurrent();
 float ADC_GetVoltage();
 
+void ADC_UpdateBridgeCurrentLimit();
 
 #endif /* ADC_H_ */

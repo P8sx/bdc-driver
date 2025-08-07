@@ -64,6 +64,7 @@ extern tTbxMbServer modbusServer;
 	#define COIL_REG_ENDSTOP_CCW_ENABLED          	5U      // uint8_t
 	#define COIL_REG_ESTOP				          	6U      // uint8_t
 
+	#define INPUT_CONTACTS_MOTOR_OCLN				10000U  // uint8_t
 
 	#define INPUT_REG_MOTOR_TEMP					30000U	// float (2 registers)
 	#define INPUT_REG_BRIDGE_TEMP					30002U	// float (2 registers)
@@ -72,9 +73,6 @@ extern tTbxMbServer modbusServer;
 	#define INPUT_REG_ENC_RPS						30006U	// int16_t
 	#define INPUT_REG_ENC_ABSOLUTE_POSITION			30008U	// int64_t (4 registers)
 
-
-
-	#define HOLDING_REG_MOTOR_CONTROL_MODE       	40000U  // uint8_t
 
 	#define HOLDING_REG_SET_MOTOR_RPS		       	40002U  // int16_t
 
