@@ -57,12 +57,14 @@ extern tTbxMbServer modbusServer;
 #elif defined(APP)
 
 	#define COIL_REG_VALIDATE_UPDATE 				1002U
+
 	#define COIL_REG_MOTOR_INVERT_CONTROL         	1U      // uint8_t
 	#define COIL_REG_MOTOR_NTC_ENABLED            	2U      // uint8_t
 	#define COIL_REG_POSITION_STOP_ON_TARGET      	3U      // uint8_t
 	#define COIL_REG_ENDSTOP_CW_ENABLED           	4U      // uint8_t
 	#define COIL_REG_ENDSTOP_CCW_ENABLED          	5U      // uint8_t
-	#define COIL_REG_ESTOP				          	6U      // uint8_t
+	#define COIL_REG_ENC_ZERO						6U		// uint8_T
+	#define COIL_REG_ESTOP				          	10U     // uint8_t
 
 	#define INPUT_CONTACTS_MOTOR_OCLN				10000U  // uint8_t
 
@@ -75,9 +77,7 @@ extern tTbxMbServer modbusServer;
 
 
 	#define HOLDING_REG_SET_MOTOR_RPS		       	40002U  // int16_t
-
 	#define HOLDING_REG_SET_POSITION				40004U	// int64_t (4 registers)
-
 	#define HOLDING_REG_SET_MOTOR_PWMA		       	40008U  // uint16_t
 	#define HOLDING_REG_SET_MOTOR_PWMB		       	40010U  // uint16_t
 
@@ -86,7 +86,7 @@ extern tTbxMbServer modbusServer;
 	#define HOLDING_REG_MOTOR_OVER_TEMP_LIMIT     	40014U  // float (2 registers)
 
 	#define HOLDING_REG_BRIDGE_CURRENT_LIMIT      	40016U  // float (2 registers)
-	#define HOLDING_REG_BRIDGE_OVERCURRENT_LIMIT 	40018U  // float (2 registers)
+	#define HOLDING_REG_BRIDGE_SWCURRENT_LIMIT 		40018U  // float (2 registers)
 
 	#define HOLDING_REG_BRIDGE_OVERCURRENT_TIME  	40020U  // uint16_t
 

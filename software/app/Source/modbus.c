@@ -73,16 +73,28 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
   static floatU bridgeCurrentLimit;
   static floatU bridgeOverCurrentLimit;
   static floatU kp, kd, ki;
+  static int64_tU motorSetPosition;
 
   tTbxMbServerResult result = TBX_MB_SERVER_OK;
   switch (addr)
   {
     case HOLDING_REG_SET_MOTOR_RPS:
-      MOTOR_SetVelocity(value);
+      MOTOR_SetVelocity((int16_t)value);
       break;
 
     case HOLDING_REG_SET_POSITION:
-      MOTOR_SetPosition(value);
+      motorSetPosition.u16[0] = value;
+      break;
+    case HOLDING_REG_SET_POSITION +1:
+	  motorSetPosition.u16[1] = value;
+      break;
+    case HOLDING_REG_SET_POSITION + 2:
+	  motorSetPosition.u16[2] = value;
+      break;
+    case HOLDING_REG_SET_POSITION + 3:
+	  motorSetPosition.u16[3] = value;
+      MOTOR_SetPosition(motorSetPosition.d);
+      motorSetPosition.d = 0;
       break;
 
     case HOLDING_REG_SET_MOTOR_PWMA:
@@ -94,34 +106,34 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
       break;
 
     case HOLDING_REG_MOTOR_TEMP_HYS:
-      motorTempHys.u16[1] = value;
+      motorTempHys.u16[0] = value;
       break;
     case HOLDING_REG_MOTOR_TEMP_HYS + 1:
-      motorTempHys.u16[0] = value;
+      motorTempHys.u16[1] = value;
       CONFIG_SetMotorTempHys(motorTempHys.d);
       break;
 
     case HOLDING_REG_MOTOR_OVER_TEMP_LIMIT:
-      motorOverTempLimit.u16[1] = value;
+      motorOverTempLimit.u16[0] = value;
       break;
     case HOLDING_REG_MOTOR_OVER_TEMP_LIMIT + 1:
-      motorOverTempLimit.u16[0] = value;
+      motorOverTempLimit.u16[1] = value;
       CONFIG_SetMotorOverTempLimit(motorOverTempLimit.d);
       break;
 
     case HOLDING_REG_BRIDGE_CURRENT_LIMIT:
-      bridgeCurrentLimit.u16[1] = value;
+      bridgeCurrentLimit.u16[0] = value;
       break;
     case HOLDING_REG_BRIDGE_CURRENT_LIMIT + 1:
-      bridgeCurrentLimit.u16[0] = value;
+      bridgeCurrentLimit.u16[1] = value;
       CONFIG_SetBridgeCurrentLimit(bridgeCurrentLimit.d);
       break;
 
-    case HOLDING_REG_BRIDGE_OVERCURRENT_LIMIT:
-      bridgeOverCurrentLimit.u16[1] = value;
-      break;
-    case HOLDING_REG_BRIDGE_OVERCURRENT_LIMIT + 1:
+    case HOLDING_REG_BRIDGE_SWCURRENT_LIMIT:
       bridgeOverCurrentLimit.u16[0] = value;
+      break;
+    case HOLDING_REG_BRIDGE_SWCURRENT_LIMIT + 1:
+      bridgeOverCurrentLimit.u16[1] = value;
       CONFIG_SetBridgeSWCurrentLimit(bridgeOverCurrentLimit.d);
       break;
     
@@ -130,26 +142,26 @@ tTbxMbServerResult AppWriteReg(tTbxMbServer channel, uint16_t addr, uint16_t val
       break;
     
     case HOLDING_REG_PID_KP:
-      kp.u16[1] = value;
+      kp.u16[0] = value;
       break; 
     case HOLDING_REG_PID_KP + 1:
-      kp.u16[0] = value;
+      kp.u16[1] = value;
       CONFIG_SetPIDKp(kp.d);
       break;
 
     case HOLDING_REG_PID_KD:
-      kd.u16[1] = value;
+      kd.u16[0] = value;
       break;  
     case HOLDING_REG_PID_KD + 1:
-      kd.u16[0] = value;
+      kd.u16[1] = value;
       CONFIG_SetPIDKd(kd.d);
       break;
 
     case HOLDING_REG_PID_KI:
-      ki.u16[1] = value;
+      ki.u16[0] = value;
       break;
     case HOLDING_REG_PID_KI + 1:
-      ki.u16[0] = value;
+      ki.u16[1] = value;
       CONFIG_SetPIDKi(ki.d);
       break;
     
@@ -170,6 +182,7 @@ tTbxMbServerResult AppReadReg(tTbxMbServer channel, uint16_t addr, uint16_t *val
   static floatU motorTemp;
   static floatU bridgeTemp;
   static floatU voltage;
+  static floatU kP, kI, kD;
   static int64_tU encoderAbsolutePosition;
 
   tTbxMbServerResult result = TBX_MB_SERVER_OK;
@@ -187,31 +200,31 @@ tTbxMbServerResult AppReadReg(tTbxMbServer channel, uint16_t addr, uint16_t *val
 
   case INPUT_REG_MOTOR_TEMP:
     motorTemp.d = ADC_GetMotorTemp();
-    *value = motorTemp.u16[1];
+    *value = motorTemp.u16[0];
     break;
 
   case INPUT_REG_MOTOR_TEMP + 1:
-    *value = motorTemp.u16[0];
+    *value = motorTemp.u16[1];
     motorTemp.d = 0;
     break;
 
   case INPUT_REG_BRIDGE_TEMP:
     bridgeTemp.d = ADC_GetBridgeTemp();
-    *value = bridgeTemp.u16[1];
+    *value = bridgeTemp.u16[0];
     break;
 
   case INPUT_REG_BRIDGE_TEMP + 1:
-    *value = bridgeTemp.u16[0];
+    *value = bridgeTemp.u16[1];
     bridgeTemp.d = 0;
     break;
 
   case INPUT_REG_VOLTAGE:
     voltage.d = ADC_GetVoltage();
-    *value = voltage.u16[1];
+    *value = voltage.u16[0];
     break;
 
   case INPUT_REG_VOLTAGE + 1:
-    *value = voltage.u16[0];
+    *value = voltage.u16[1];
     voltage.d = 0;
     break;
 
@@ -221,22 +234,48 @@ tTbxMbServerResult AppReadReg(tTbxMbServer channel, uint16_t addr, uint16_t *val
 
   case INPUT_REG_ENC_ABSOLUTE_POSITION:
     encoderAbsolutePosition.d = ENCODER_GetAbsolutePosition();
-    *value = encoderAbsolutePosition.u16[3];
+    *value = encoderAbsolutePosition.u16[0];
     break;
 
   case INPUT_REG_ENC_ABSOLUTE_POSITION + 1:
-    *value = encoderAbsolutePosition.u16[2];
-    break;
-
-  case INPUT_REG_ENC_ABSOLUTE_POSITION + 2:
     *value = encoderAbsolutePosition.u16[1];
     break;
 
+  case INPUT_REG_ENC_ABSOLUTE_POSITION + 2:
+    *value = encoderAbsolutePosition.u16[2];
+    break;
+
   case INPUT_REG_ENC_ABSOLUTE_POSITION + 3:
-    *value = encoderAbsolutePosition.u16[0];
+    *value = encoderAbsolutePosition.u16[3];
     encoderAbsolutePosition.d = 0;
     break;
 
+  case HOLDING_REG_PID_KP:
+    kP.d = cfg->pidKp;
+    *value = kP.u16[0];
+    break;
+  case HOLDING_REG_PID_KP + 1:
+  	*value = kP.u16[1];
+    kP.d = 0;
+    break;
+
+  case HOLDING_REG_PID_KD:
+	kD.d = cfg->pidKd;
+	*value = kD.u16[0];
+    break;
+  case HOLDING_REG_PID_KD + 1:
+	*value = kD.u16[1];
+	kD.d = 0;
+    break;
+
+  case HOLDING_REG_PID_KI:
+	kI.d = cfg->pidKi;
+	*value = kI.u16[0];
+    break;
+  case HOLDING_REG_PID_KI + 1:
+	*value = kI.u16[1];
+	kI.d = 0;
+    break;
   default:
     result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
   }
@@ -283,7 +322,9 @@ tTbxMbServerResult AppWriteCoil(tTbxMbServer channel, uint16_t addr, uint8_t val
   case COIL_REG_ESTOP:
     MOTOR_EStop(value);
     break;
-
+  case COIL_REG_ENC_ZERO:
+	ENCODER_ResetAbsolutePosition();
+	break;
   default:
     result = TBX_MB_SERVER_ERR_ILLEGAL_DATA_ADDR;
   }
